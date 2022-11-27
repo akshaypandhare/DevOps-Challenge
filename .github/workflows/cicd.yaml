@@ -21,7 +21,6 @@ jobs:
       - name: Testing python code
         run: |
               python3 ./tests/test.py
-              id
 
   job-2:
     name: "Build"
