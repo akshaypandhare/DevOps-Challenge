@@ -45,5 +45,5 @@ jobs:
     steps:
       - name: Deploy demo application in docker swarm service.
         run: |
-          docker service create --name demo-app --replicas=2 --env-file .env --publish published=80,target=8000 akshaypandhare:${GITHUB_SHA::8}
-          if [[ $? == 1 ]]; then docker service update demo-app --image akshaypandhare:${GITHUB_SHA::8} ; else echo "application deployed" ; fi
+          docker service create --name demo-app --replicas=2 --env-file .env --publish published=80,target=8000 akshaypandhare/${GITHUB_SHA::8}
+          if [[ $? == 1 ]]; then docker service update demo-app --image akshaypandhare/${GITHUB_SHA::8} ; else echo "application deployed" ; fi
