@@ -39,7 +39,22 @@ jobs:
               docker push "akshaypandhare/demo-app:${GITHUB_SHA::8}"
 
   job-3:
-    needs: [job-1, job-2]
+    name: "Vulnerability scan"
+    needs: job-2
+    runs-on: [self-hosted, linux]
+    steps:
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'akshaypandhare/demo-app:${GITHUB_SHA::8}'
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
+  job-4:
+    needs: [job-1, job-2, job-3]
     name: "Prod-Deploy"
     runs-on: [self-hosted, linux]
     steps:
