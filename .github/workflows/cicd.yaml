@@ -35,8 +35,9 @@ jobs:
 
       - name: Docker Build and Tag repo
         run: |
-              docker build -t akshaypandhare:${GITHUB_SHA::8} .
-              docker push akshaypandhare:${GITHUB_SHA::8}
+              docker build -t ${GITHUB_REPOSITORY#*/}:${GITHUB_SHA::8} .
+              docker tag ${GITHUB_REPOSITORY#*/}:${GITHUB_SHA::8} "akshaypandhare:${GITHUB_SHA::8}"
+              docker push "akshaypandhare:${GITHUB_SHA::8}"
 
   job-3:
     needs: [job-1, job-2]
