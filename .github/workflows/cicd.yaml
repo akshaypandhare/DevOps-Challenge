@@ -4,9 +4,12 @@ on:
   push:
     branches:
       - master
-    paths-ignore:
-      #- '**/README.md'
-      #- '**/cicd.yaml'
+
+env: 
+  DOCKER_REPO: akshaypandhare
+  DOCKER_APP: demo-app
+  DOCKER_APP_REPLICA: 2
+
 jobs:
 
   job-1:
@@ -37,8 +40,8 @@ jobs:
 
       - name: Docker Build and Tag repo
         run: |
-              docker build -t "akshaypandhare/demo-app:${GITHUB_SHA::8}" .
-              docker push "akshaypandhare/demo-app:${GITHUB_SHA::8}"
+              docker build -t "${{ env.DOCKER_REPO }}/${{ env.DOCKER_APP }}:${GITHUB_SHA::8}" .
+              docker push "${{ env.DOCKER_REPO }}/${{ env.DOCKER_APP }}:${GITHUB_SHA::8}"
               echo "tag=${GITHUB_SHA::8}" >> "$GITHUB_ENV"
 
   job-3:
@@ -49,7 +52,7 @@ jobs:
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: "akshaypandhare/demo-app:${{ needs.job-2.outputs.output1 }}"
+          image-ref: "${{ env.DOCKER_REPO }}/${{ env.DOCKER_APP }}:${{ needs.job-2.outputs.output1 }}"
           format: 'table'
           exit-code: '1'
           ignore-unfixed: true
@@ -63,5 +66,5 @@ jobs:
     steps:
       - name: Deploy demo application in docker swarm service.
         run: |
-          docker service inspect demo-app
-          if [[ $? == 0 ]]; then docker service update demo-app --image akshaypandhare/demo-app:${GITHUB_SHA::8} ; else docker service create --name demo-app --replicas=2 --env-file .env --publish published=80,target=8000 akshaypandhare/demo-app:${GITHUB_SHA::8} ; fi
+          docker service inspect ${{ env.DOCKER_APP }}
+          if [[ $? == 0 ]]; then docker service update ${{ env.DOCKER_APP }} --image ${{ env.DOCKER_REPO }}/${{ env.DOCKER_APP }}:${GITHUB_SHA::8} ; else docker service create --name ${{ env.DOCKER_APP }} --replicas=${{ env.DOCKER_APP_REPLICA }} --env-file .env --publish published=80,target=8000 ${{ env.DOCKER_REPO }}/${{ env.DOCKER_APP }}:${GITHUB_SHA::8} ; fi
