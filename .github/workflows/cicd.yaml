@@ -20,7 +20,7 @@ jobs:
         continue-on-error: true
         run: |
           docker service ls | grep -w ${{ env.DOCKER_APP }}
-          echo status_code=$? >> "$GITHUB_ENV"
+          if [[ $? == 0 ]]; then echo "service=update" >> "$GITHUB_ENV"; else echo "service=create" >> "$GITHUB_ENV" ; fi
       - name: Deploy demo application in docker swarm service.
         run: |
-          if [[ ${{ env.status_code }} == 0 ]]; then echo update; else echo create ; fi
+          if [[ ${{ env.service }} == 0 ]]; then echo update; else echo create ; fi
