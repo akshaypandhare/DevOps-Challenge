@@ -1,5 +1,5 @@
 FROM python:3.7
-ENV ENVIRONMENT=PROD \
+ENV ENVIRONMENT=DEV \
     HOST=localhost   \ 
     PORT=8000        \
     REDIS_HOST=10.20.30.117  \
