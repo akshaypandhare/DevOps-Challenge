@@ -64,7 +64,11 @@ jobs:
     name: "Prod-Deploy"
     runs-on: [self-hosted, linux]
     steps:
-      - name: Deploy demo application in docker swarm service.
+      - name: Check if Docker service running or not.
+        continue-on-error: true
         run: |
           docker service ls | grep -w ${{ env.DOCKER_APP }}
-          if [[ $? == 0 ]]; then docker service update ${{ env.DOCKER_APP }} --image ${{ env.DOCKER_REPO }}/${{ env.DOCKER_APP }}:${GITHUB_SHA::8} ; else docker service create --name ${{ env.DOCKER_APP }} --replicas=${{ env.DOCKER_APP_REPLICA }} --publish published=80,target=8000 ${{ env.DOCKER_REPO }}/${{ env.DOCKER_APP }}:${GITHUB_SHA::8} ; fi
+          echo "status_code=$?" >> "$GITHUB_ENV"
+      - name: Deploy demo application in docker swarm service.
+        run: |
+          if [[ ${{ env.status_code }} == 0 ]]; then docker service update ${{ env.DOCKER_APP }} --image ${{ env.DOCKER_REPO }}/${{ env.DOCKER_APP }}:${GITHUB_SHA::8} ; else docker service create --name ${{ env.DOCKER_APP }} --replicas=${{ env.DOCKER_APP_REPLICA }} --publish published=80,target=8000 ${{ env.DOCKER_REPO }}/${{ env.DOCKER_APP }}:${GITHUB_SHA::8} ; fi
